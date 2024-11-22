@@ -1,15 +1,15 @@
 {
-  "name": "metaverse-2d",
+  "name": "tests",
   "version": "1.0.0",
-  "description": "",
   "main": "index.js",
-  "directories": {
-    "test": "tests"
-  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "jest": "^29.7.0"
+  }
 }
