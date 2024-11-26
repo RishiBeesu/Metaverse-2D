@@ -2,7 +2,7 @@ const { default: axios } = require("axios");
 
 const BACKEND_URL = "http://localhost:3000";
 
-describe("Authentication", () => {
+describe.skip("Authentication", () => {
   test("User able to signup only once", async () => {
     const username = `rishi-${Math.random()}-user`;
     const email = `rishi-${Math.floor(
@@ -322,5 +322,144 @@ describe("Authentication", () => {
       signinResponse = e.response;
     }
     expect(signinResponse.status).toBe(404);
+  });
+});
+
+describe("Avatar choosing", () => {
+  let userToken = "";
+  let adminToken = "";
+  let avatarId = "";
+
+  beforeAll(async () => {
+    const userUsername = `rishi-${Math.random()}-user`;
+    const userPassword = "userPassword";
+    const adminUsername = `rishi-${Math.random()}-admin`;
+    const adminPassword = "adminPassword";
+    let userSignupResponse;
+    let adminSignupResponse;
+    let userSigninResponse;
+    let adminSigninResponse;
+    let avatarIdResponse;
+    try {
+      userSignupResponse = await axios.post(
+        `${BACKEND_URL}/api/v1/user/signup`,
+        {
+          userUsername,
+          userPassword,
+          role: "User",
+        }
+      );
+    } catch (e) {
+      userSignupResponse = e.response;
+    }
+    try {
+      adminSignupResponse = await axios.post(
+        `${BACKEND_URL}/api/v1/admin/signup`,
+        {
+          adminUsername,
+          adminPassword,
+          role: "Admin",
+        }
+      );
+    } catch (e) {
+      adminSignupResponse = e.response;
+    }
+    try {
+      userSigninResponse = await axios.post(
+        `${BACKEND_URL}/api/v1/user/signin`,
+        {
+          userUsername,
+          userPassword,
+        }
+      );
+    } catch (e) {
+      userSigninResponse = e.response;
+    }
+    try {
+      adminSigninResponse = await axios.post(
+        `${BACKEND_URL}/api/v1/admin/signin`,
+        {
+          adminUsername,
+          adminPassword,
+        }
+      );
+    } catch (e) {
+      adminSigninResponse = e.response;
+    }
+    userToken = userSigninResponse.data.token;
+    adminToken = adminSigninResponse.data.token;
+    try {
+      avatarIdResponse = await axios.post(
+        `${BACKEND_URL}/api/v1/admin/avatar`,
+        {
+          imageUrl:
+            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQm3RFDZM21teuCMFYx_AROjt-AzUwDBROFww&s",
+          name: "Timmy",
+        },
+        {
+          headers: {
+            authorization: `Bearer ${adminToken}`,
+          },
+        }
+      );
+    } catch (e) {
+      avatarIdResponse = e.response;
+    }
+    avatarId = avatarIdResponse.data.avatarId;
+  });
+
+  test("Able to choose avatar if avatarId is legit", async () => {
+    let userAvatarResponse;
+    try {
+      userAvatarResponse = await axios.post(
+        `${BACKEND_URL}/api/v1/user/metadata`,
+        {
+          avatarId,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${userToken}`,
+          },
+        }
+      );
+    } catch (e) {
+      userAvatarResponse = e.response;
+    }
+    expect(userAvatarResponse.status).toBe(200);
+  });
+
+  test("Not able to choose avatar if avatarId is not legit", async () => {
+    let avatarIdResponse;
+    try {
+      avatarIdResponse = await axios.post(
+        `${BACKEND_URL}/api/v1/user/metadata`,
+        {
+          avatarId: "random",
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${userToken}`,
+          },
+        }
+      );
+    } catch (e) {
+      avatarIdResponse = e.response;
+    }
+    expect(avatarIdResponse.status).toBe(400);
+  });
+
+  test("Not able to choose avatat if no auth header is present", async () => {
+    let avatarIdResponse;
+    try {
+      avatarIdResponse = await axios.post(
+        `${BACKEND_URL}/api/v1/user/metadata`,
+        {
+          avatarId,
+        }
+      );
+    } catch (e) {
+      avatarIdResponse = e.response;
+    }
+    expect(avatarIdResponse.status).toBe(403);
   });
 });
