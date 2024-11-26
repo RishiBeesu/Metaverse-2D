@@ -19,9 +19,18 @@ enum Role {
 }
 
 model User {
-  id       String @id @unique @default(cuid())
-  username String @unique
-  email    String @unique
+  id       String  @id @unique @default(cuid())
+  username String  @unique
+  email    String  @unique
   password String
   role     Role
+  avatarId String?
+  avatar   Avatar? @relation(fields: [avatarId], references: [id])
+}
+
+model Avatar {
+  id       String @id @unique @default(cuid())
+  imageUrl String
+  name     String @unique
+  users    User[]
 }

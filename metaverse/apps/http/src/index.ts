@@ -11,6 +11,12 @@ declare global {
       PORT: number;
     }
   }
+  namespace Express {
+    interface Request {
+      role?: "Admin" | "User";
+      userId?: string;
+    }
+  }
 }
 
 const app = express();

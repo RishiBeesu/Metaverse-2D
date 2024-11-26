@@ -1,7 +1,12 @@
-import { signinSchema, signupSchema } from "@repo/zod/types";
+import {
+  createAvatarSchema,
+  signinSchema,
+  signupSchema,
+} from "@repo/zod/types";
 import { Router } from "express";
 import client from "@repo/db/client";
 import jwt from "jsonwebtoken";
+import { adminMiddleware } from "../../middleware/admin";
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
@@ -80,6 +85,31 @@ adminRouter.post("/signin", async (req, res) => {
     );
     res.status(200).json({
       token,
+    });
+  } catch (e) {
+    res.status(500).json({
+      message: "Internal Error",
+    });
+  }
+});
+
+adminRouter.post("/avatar", adminMiddleware, async (req, res) => {
+  const parsedData = createAvatarSchema.safeParse(req.body);
+  if (!parsedData.success) {
+    res.status(400).json({
+      message: "Invalid Inputs",
+    });
+    return;
+  }
+  try {
+    const createAvatarResponse = await client.avatar.create({
+      data: {
+        imageUrl: parsedData.data.imageUrl,
+        name: parsedData.data.name,
+      },
+    });
+    res.status(200).json({
+      avatarId: createAvatarResponse.id,
     });
   } catch (e) {
     res.status(500).json({

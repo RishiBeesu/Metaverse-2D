@@ -11,5 +11,16 @@ export const signinSchema = zod.object({
   password: zod.string(),
 });
 
+export const createAvatarSchema = zod.object({
+  imageUrl: zod.string(),
+  name: zod.string(),
+});
+
+export const updateUserAvatarSchema = zod.object({
+  avatarId: zod.string(),
+});
+
 export type SignupSchema = zod.infer<typeof signupSchema>;
 export type SigninSchema = zod.infer<typeof signinSchema>;
+export type CreateAvatarSchema = zod.infer<typeof createAvatarSchema>;
+export type UpdateUserAvatarSchema = zod.infer<typeof updateUserAvatarSchema>;

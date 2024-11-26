@@ -2,7 +2,7 @@ const { default: axios } = require("axios");
 
 const BACKEND_URL = "http://localhost:3000";
 
-describe.skip("Authentication", () => {
+describe("Authentication", () => {
   test("User able to signup only once", async () => {
     const username = `rishi-${Math.random()}-user`;
     const email = `rishi-${Math.floor(
@@ -32,7 +32,6 @@ describe.skip("Authentication", () => {
     } catch (e) {
       reSignupResponse = e.response;
     }
-    console.log(reSignupResponse);
     expect(reSignupResponse.status).toBe(400);
   });
 
@@ -317,7 +316,6 @@ describe.skip("Authentication", () => {
         username: "random",
         password: "123456",
       });
-      console.log(signinResponse);
     } catch (e) {
       signinResponse = e.response;
     }
@@ -326,14 +324,16 @@ describe.skip("Authentication", () => {
 });
 
 describe("Avatar choosing", () => {
-  let userToken = "";
-  let adminToken = "";
-  let avatarId = "";
+  let userToken;
+  let adminToken;
+  let avatarId;
 
   beforeAll(async () => {
     const userUsername = `rishi-${Math.random()}-user`;
+    const userEmail = `rishi-${Math.random()}-user@gmail.com`;
     const userPassword = "userPassword";
     const adminUsername = `rishi-${Math.random()}-admin`;
+    const adminEmail = `rishi-${Math.random()}-admin@gmai.com`;
     const adminPassword = "adminPassword";
     let userSignupResponse;
     let adminSignupResponse;
@@ -344,8 +344,9 @@ describe("Avatar choosing", () => {
       userSignupResponse = await axios.post(
         `${BACKEND_URL}/api/v1/user/signup`,
         {
-          userUsername,
-          userPassword,
+          username: userUsername,
+          email: userEmail,
+          password: userPassword,
           role: "User",
         }
       );
@@ -356,8 +357,9 @@ describe("Avatar choosing", () => {
       adminSignupResponse = await axios.post(
         `${BACKEND_URL}/api/v1/admin/signup`,
         {
-          adminUsername,
-          adminPassword,
+          username: adminUsername,
+          email: adminEmail,
+          password: adminPassword,
           role: "Admin",
         }
       );
@@ -368,8 +370,8 @@ describe("Avatar choosing", () => {
       userSigninResponse = await axios.post(
         `${BACKEND_URL}/api/v1/user/signin`,
         {
-          userUsername,
-          userPassword,
+          username: userUsername,
+          password: userPassword,
         }
       );
     } catch (e) {
@@ -379,8 +381,8 @@ describe("Avatar choosing", () => {
       adminSigninResponse = await axios.post(
         `${BACKEND_URL}/api/v1/admin/signin`,
         {
-          adminUsername,
-          adminPassword,
+          username: adminUsername,
+          password: adminPassword,
         }
       );
     } catch (e) {
@@ -394,7 +396,7 @@ describe("Avatar choosing", () => {
         {
           imageUrl:
             "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQm3RFDZM21teuCMFYx_AROjt-AzUwDBROFww&s",
-          name: "Timmy",
+          name: `Timmy-${Math.random()}`,
         },
         {
           headers: {
@@ -438,14 +440,14 @@ describe("Avatar choosing", () => {
         },
         {
           headers: {
-            Authorization: `Bearer ${userToken}`,
+            authorization: `Bearer ${userToken}`,
           },
         }
       );
     } catch (e) {
       avatarIdResponse = e.response;
     }
-    expect(avatarIdResponse.status).toBe(400);
+    expect(avatarIdResponse.status).toBe(404);
   });
 
   test("Not able to choose avatat if no auth header is present", async () => {
