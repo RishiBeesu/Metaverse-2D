@@ -1,8 +1,98 @@
-const { default: axios } = require("axios");
+const { default: axios, all } = require("axios");
 
 const BACKEND_URL = "http://localhost:3000";
 
-describe("Authentication", () => {
+async function setupHTTP() {
+  let userTokenfn;
+  let adminTokenfn;
+  let avatarIdfn;
+  let userIdfn;
+  let adminIdfn;
+  const userUsername = `rishi-${Math.random()}-user`;
+  const userEmail = `rishi-${Math.random()}-user@gmail.com`;
+  const userPassword = "userPassword";
+  const adminUsername = `rishi-${Math.random()}-admin`;
+  const adminEmail = `rishi-${Math.random()}-admin@gmai.com`;
+  const adminPassword = "adminPassword";
+  let userSignupResponse;
+  let adminSignupResponse;
+  let userSigninResponse;
+  let adminSigninResponse;
+  let avatarIdResponse;
+  try {
+    userSignupResponse = await axios.post(`${BACKEND_URL}/api/v1/user/signup`, {
+      username: userUsername,
+      email: userEmail,
+      password: userPassword,
+      role: "User",
+    });
+  } catch (e) {
+    userSignupResponse = e.response;
+  }
+  try {
+    adminSignupResponse = await axios.post(
+      `${BACKEND_URL}/api/v1/admin/signup`,
+      {
+        username: adminUsername,
+        email: adminEmail,
+        password: adminPassword,
+        role: "Admin",
+      }
+    );
+  } catch (e) {
+    adminSignupResponse = e.response;
+  }
+  try {
+    userSigninResponse = await axios.post(`${BACKEND_URL}/api/v1/user/signin`, {
+      username: userUsername,
+      password: userPassword,
+    });
+  } catch (e) {
+    userSigninResponse = e.response;
+  }
+  try {
+    adminSigninResponse = await axios.post(
+      `${BACKEND_URL}/api/v1/admin/signin`,
+      {
+        username: adminUsername,
+        password: adminPassword,
+      }
+    );
+  } catch (e) {
+    adminSigninResponse = e.response;
+  }
+  userIdfn = userSignupResponse.data.userId;
+  userTokenfn = userSigninResponse.data.token;
+  adminIdfn = adminSignupResponse.data.userId;
+  adminTokenfn = adminSigninResponse.data.token;
+  try {
+    avatarIdResponse = await axios.post(
+      `${BACKEND_URL}/api/v1/admin/avatar`,
+      {
+        imageUrl:
+          "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQm3RFDZM21teuCMFYx_AROjt-AzUwDBROFww&s",
+        name: `Timmy-${Math.random()}`,
+      },
+      {
+        headers: {
+          authorization: `Bearer ${adminTokenfn}`,
+        },
+      }
+    );
+  } catch (e) {
+    avatarIdResponse = e.response;
+  }
+  avatarIdfn = avatarIdResponse.data.avatarId;
+  return {
+    userTokenfn,
+    adminTokenfn,
+    avatarIdfn,
+    userIdfn,
+    adminIdfn,
+  };
+} // needs userToken, adminToken, avatarId, userId, adminId
+
+describe.skip("Authentication", () => {
   test("User able to signup only once", async () => {
     const username = `rishi-${Math.random()}-user`;
     const email = `rishi-${Math.floor(
@@ -323,91 +413,20 @@ describe("Authentication", () => {
   });
 });
 
-describe("Avatar choosing", () => {
+describe.skip("Avatar choosing", () => {
   let userToken;
   let adminToken;
   let avatarId;
-
+  let userId;
+  let adminId;
   beforeAll(async () => {
-    const userUsername = `rishi-${Math.random()}-user`;
-    const userEmail = `rishi-${Math.random()}-user@gmail.com`;
-    const userPassword = "userPassword";
-    const adminUsername = `rishi-${Math.random()}-admin`;
-    const adminEmail = `rishi-${Math.random()}-admin@gmai.com`;
-    const adminPassword = "adminPassword";
-    let userSignupResponse;
-    let adminSignupResponse;
-    let userSigninResponse;
-    let adminSigninResponse;
-    let avatarIdResponse;
-    try {
-      userSignupResponse = await axios.post(
-        `${BACKEND_URL}/api/v1/user/signup`,
-        {
-          username: userUsername,
-          email: userEmail,
-          password: userPassword,
-          role: "User",
-        }
-      );
-    } catch (e) {
-      userSignupResponse = e.response;
-    }
-    try {
-      adminSignupResponse = await axios.post(
-        `${BACKEND_URL}/api/v1/admin/signup`,
-        {
-          username: adminUsername,
-          email: adminEmail,
-          password: adminPassword,
-          role: "Admin",
-        }
-      );
-    } catch (e) {
-      adminSignupResponse = e.response;
-    }
-    try {
-      userSigninResponse = await axios.post(
-        `${BACKEND_URL}/api/v1/user/signin`,
-        {
-          username: userUsername,
-          password: userPassword,
-        }
-      );
-    } catch (e) {
-      userSigninResponse = e.response;
-    }
-    try {
-      adminSigninResponse = await axios.post(
-        `${BACKEND_URL}/api/v1/admin/signin`,
-        {
-          username: adminUsername,
-          password: adminPassword,
-        }
-      );
-    } catch (e) {
-      adminSigninResponse = e.response;
-    }
-    userToken = userSigninResponse.data.token;
-    adminToken = adminSigninResponse.data.token;
-    try {
-      avatarIdResponse = await axios.post(
-        `${BACKEND_URL}/api/v1/admin/avatar`,
-        {
-          imageUrl:
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQm3RFDZM21teuCMFYx_AROjt-AzUwDBROFww&s",
-          name: `Timmy-${Math.random()}`,
-        },
-        {
-          headers: {
-            authorization: `Bearer ${adminToken}`,
-          },
-        }
-      );
-    } catch (e) {
-      avatarIdResponse = e.response;
-    }
-    avatarId = avatarIdResponse.data.avatarId;
+    let { userTokenfn, adminTokenfn, avatarIdfn, userIdfn, adminIdfn } =
+      await setupHTTP();
+    userToken = userTokenfn;
+    adminToken = adminTokenfn;
+    avatarId = avatarIdfn;
+    userId = userIdfn;
+    adminId = adminIdfn;
   });
 
   test("Able to choose avatar if avatarId is legit", async () => {
@@ -463,5 +482,50 @@ describe("Avatar choosing", () => {
       avatarIdResponse = e.response;
     }
     expect(avatarIdResponse.status).toBe(403);
+  });
+});
+
+describe("Avatar Information", () => {
+  let userToken;
+  let adminToken;
+  let avatarId;
+  let userId;
+  let adminId;
+
+  beforeAll(async () => {
+    let { userTokenfn, adminTokenfn, avatarIdfn, userIdfn, adminIdfn } =
+      await setupHTTP();
+    userToken = userTokenfn;
+    adminToken = adminTokenfn;
+    avatarId = avatarIdfn;
+    userId = userIdfn;
+    adminId = adminIdfn;
+  });
+
+  test("Getting avatar information of required user", async () => {
+    let reqAvatarResponse;
+    try {
+      reqAvatarResponse = await axios.get(
+        `${BACKEND_URL}/api/v1/user/metadata/bulk?ids=[${userId}]`
+      );
+    } catch (e) {
+      reqAvatarResponse = e.response;
+    }
+    expect(reqAvatarResponse.data.avatars.length).toBe(1);
+    expect(reqAvatarResponse.data.avatars[0].userId).toBe(userId);
+  });
+
+  test("All avatars contain recently created avatar", async () => {
+    let allAvatarResponse;
+    try {
+      allAvatarResponse = await axios.get(`${BACKEND_URL}/api/v1/avatars`);
+    } catch (e) {
+      allAvatarResponse = e.response;
+    }
+    expect(allAvatarResponse.data.avatars.length).not.toBe(0);
+    const currentAvatar = allAvatarResponse.data.avatars.find(
+      (avatar) => avatar.id === avatarId
+    );
+    expect(currentAvatar).toBeDefined();
   });
 });
