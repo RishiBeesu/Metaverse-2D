@@ -138,3 +138,33 @@ userRouter.post("/metadata", userMiddleware, async (req, res) => {
     });
   }
 });
+
+userRouter.get("/metadata/bulk", async (req, res) => {
+  const userIdString = (req.query.ids ?? "[]") as string;
+  const userIds = userIdString.slice(1, userIdString.length - 1).split(",");
+  try {
+    const usersData = await client.user.findMany({
+      where: {
+        id: {
+          in: userIds,
+        },
+      },
+      select: {
+        avatarId: true,
+        id: true,
+      },
+    });
+    res.status(200).json({
+      avatars: usersData.map((data) => {
+        return {
+          userId: data.id,
+          avatarId: data.avatarId,
+        };
+      }),
+    });
+  } catch (e) {
+    res.status(500).json({
+      message: "Internal Error",
+    });
+  }
+});
