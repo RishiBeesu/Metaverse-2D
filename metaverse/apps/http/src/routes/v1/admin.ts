@@ -1,7 +1,10 @@
 import {
   createAvatarSchema,
+  createElementSchema,
+  createMapSchema,
   signinSchema,
   signupSchema,
+  updateElementSchema,
 } from "@repo/zod/types";
 import { Router } from "express";
 import client from "@repo/db/client";
@@ -110,6 +113,97 @@ adminRouter.post("/avatar", adminMiddleware, async (req, res) => {
     });
     res.status(200).json({
       avatarId: createAvatarResponse.id,
+    });
+  } catch (e) {
+    res.status(500).json({
+      message: "Internal Error",
+    });
+  }
+});
+
+adminRouter.post("/element", adminMiddleware, async (req, res) => {
+  const parsedData = createElementSchema.safeParse(req.body);
+  if (!parsedData.success) {
+    res.status(400).json({
+      message: "Invalid Inputs",
+    });
+    return;
+  }
+  try {
+    const createElement = await client.element.create({
+      data: {
+        imageUrl: parsedData.data.imageUrl,
+        width: parsedData.data.width,
+        height: parsedData.data.height,
+        static: parsedData.data.static,
+      },
+    });
+    res.status(200).json({
+      id: createElement.id,
+    });
+  } catch (e) {
+    res.status(500).json({
+      message: "Internal Error",
+    });
+  }
+});
+
+adminRouter.put("/element/:elementId", adminMiddleware, async (req, res) => {
+  const elementId = req.params.elementId;
+  const parsedData = updateElementSchema.safeParse(req.body);
+  if (!parsedData.success) {
+    res.status(400).json({
+      message: "Invalid Inputs",
+    });
+    return;
+  }
+  try {
+    const updateElement = await client.element.update({
+      where: {
+        id: elementId,
+      },
+      data: {
+        imageUrl: parsedData.data.imageUrl,
+      },
+    });
+    res.status(200).json({
+      message: "Element Updated Successfully",
+    });
+  } catch (e) {
+    res.status(500).json({
+      message: "Internal Error",
+    });
+  }
+});
+
+adminRouter.post("/map", adminMiddleware, async (req, res) => {
+  const parsedData = createMapSchema.safeParse(req.body);
+  if (!parsedData.success) {
+    res.status(400).json({
+      message: "Invalid Inputs",
+    });
+    return;
+  }
+  try {
+    const createdMap = await client.map.create({
+      data: {
+        name: parsedData.data.name,
+        thumbnail: parsedData.data.thumbnail,
+        width: parsedData.data.width,
+        height: parsedData.data.height,
+        elements: {
+          create: parsedData.data.defaultElements.map((e) => {
+            return {
+              elementId: e.elementId,
+              x: e.x,
+              y: e.y,
+            };
+          }),
+        },
+      },
+    });
+    res.status(200).json({
+      id: createdMap.id,
     });
   } catch (e) {
     res.status(500).json({
