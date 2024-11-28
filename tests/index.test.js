@@ -2,7 +2,7 @@ const { default: axios, all } = require("axios");
 
 const BACKEND_URL = "http://localhost:3000";
 
-async function setupHTTP() {
+async function signupSigninAvatar() {
   let userTokenfn;
   let adminTokenfn;
   let avatarIdfn;
@@ -92,7 +92,7 @@ async function setupHTTP() {
   };
 } // needs userToken, adminToken, avatarId, userId, adminId
 
-describe.skip("Authentication", () => {
+describe("Authentication", () => {
   test("User able to signup only once", async () => {
     const username = `rishi-${Math.random()}-user`;
     const email = `rishi-${Math.floor(
@@ -413,7 +413,7 @@ describe.skip("Authentication", () => {
   });
 });
 
-describe.skip("Avatar choosing", () => {
+describe("Avatar choosing", () => {
   let userToken;
   let adminToken;
   let avatarId;
@@ -421,7 +421,7 @@ describe.skip("Avatar choosing", () => {
   let adminId;
   beforeAll(async () => {
     let { userTokenfn, adminTokenfn, avatarIdfn, userIdfn, adminIdfn } =
-      await setupHTTP();
+      await signupSigninAvatar();
     userToken = userTokenfn;
     adminToken = adminTokenfn;
     avatarId = avatarIdfn;
@@ -494,7 +494,7 @@ describe("Avatar Information", () => {
 
   beforeAll(async () => {
     let { userTokenfn, adminTokenfn, avatarIdfn, userIdfn, adminIdfn } =
-      await setupHTTP();
+      await signupSigninAvatar();
     userToken = userTokenfn;
     adminToken = adminTokenfn;
     avatarId = avatarIdfn;
@@ -527,5 +527,893 @@ describe("Avatar Information", () => {
       (avatar) => avatar.id === avatarId
     );
     expect(currentAvatar).toBeDefined();
+  });
+});
+
+describe("Creating Elements", () => {
+  let userToken;
+  let adminToken;
+  let avatarId;
+  let userId;
+  let adminId;
+
+  beforeAll(async () => {
+    let { userTokenfn, adminTokenfn, avatarIdfn, userIdfn, adminIdfn } =
+      await signupSigninAvatar();
+    userToken = userTokenfn;
+    adminToken = adminTokenfn;
+    avatarId = avatarIdfn;
+    userId = userIdfn;
+    adminId = adminIdfn;
+  });
+
+  test("Admin able to create element", async () => {
+    let createElementResponse;
+    try {
+      createElementResponse = await axios.post(
+        `${BACKEND_URL}/api/v1/admin/element`,
+        {
+          imageUrl:
+            "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcRCRca3wAR4zjPPTzeIY9rSwbbqB6bB2hVkoTXN4eerXOIkJTG1GpZ9ZqSGYafQPToWy_JTcmV5RHXsAsWQC3tKnMlH_CsibsSZ5oJtbakq&usqp=CAE",
+          width: 1,
+          height: 1,
+          static: true,
+        },
+        {
+          headers: {
+            authorization: `Bearer ${adminToken}`,
+          },
+        }
+      );
+    } catch (e) {
+      createElementResponse = e.response;
+    }
+    expect(createElementResponse.status).toBe(200);
+  });
+
+  test("Admin is able to update the imageUrl for an element", async () => {
+    let createElementResponse;
+    let updateElementResponse;
+    try {
+      createElementResponse = await axios.post(
+        `${BACKEND_URL}/api/v1/admin/element`,
+        {
+          imageUrl:
+            "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcRCRca3wAR4zjPPTzeIY9rSwbbqB6bB2hVkoTXN4eerXOIkJTG1GpZ9ZqSGYafQPToWy_JTcmV5RHXsAsWQC3tKnMlH_CsibsSZ5oJtbakq&usqp=CAE",
+          width: 1,
+          height: 1,
+          static: true,
+        },
+        {
+          headers: {
+            authorization: `Bearer ${adminToken}`,
+          },
+        }
+      );
+
+      updateElementResponse = await axios.put(
+        `${BACKEND_URL}/api/v1/admin/element/${elementResponse.data.id}`,
+        {
+          imageUrl:
+            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQm3RFDZM21teuCMFYx_AROjt-AzUwDBROFww&s",
+        },
+        {
+          headers: {
+            authorization: `Bearer ${adminToken}`,
+          },
+        }
+      );
+    } catch (e) {
+      createElementResponse = e.response;
+      updateElementResponse = e.response;
+    }
+
+    expect(updateElementResponse.status).toBe(200);
+  });
+});
+
+describe("Creating Map", () => {
+  let userToken;
+  let adminToken;
+  let avatarId;
+  let userId;
+  let adminId;
+  let element1Id;
+  let element2Id;
+
+  beforeAll(async () => {
+    let { userTokenfn, adminTokenfn, avatarIdfn, userIdfn, adminIdfn } =
+      await signupSigninAvatar();
+    userToken = userTokenfn;
+    adminToken = adminTokenfn;
+    avatarId = avatarIdfn;
+    userId = userIdfn;
+    adminId = adminIdfn;
+    let element1Response;
+    let element2Response;
+    try {
+      element1Response = await axios.post(
+        `${BACKEND_URL}/api/v1/admin/element`,
+        {
+          imageUrl:
+            "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcRCRca3wAR4zjPPTzeIY9rSwbbqB6bB2hVkoTXN4eerXOIkJTG1GpZ9ZqSGYafQPToWy_JTcmV5RHXsAsWQC3tKnMlH_CsibsSZ5oJtbakq&usqp=CAE",
+          width: 1,
+          height: 1,
+          static: true,
+        },
+        {
+          headers: {
+            authorization: `Bearer ${adminTokenfn}`,
+          },
+        }
+      );
+      element2Response = await axios.post(
+        `${BACKEND_URL}/api/v1/admin/element`,
+        {
+          imageUrl:
+            "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcRCRca3wAR4zjPPTzeIY9rSwbbqB6bB2hVkoTXN4eerXOIkJTG1GpZ9ZqSGYafQPToWy_JTcmV5RHXsAsWQC3tKnMlH_CsibsSZ5oJtbakq&usqp=CAE",
+          width: 1,
+          height: 1,
+          static: true,
+        },
+        {
+          headers: {
+            authorization: `Bearer ${adminTokenfn}`,
+          },
+        }
+      );
+    } catch (e) {
+      element1Response = e.response;
+      element2Response = e.response;
+    }
+    element1Id = element1Response.data.id;
+    element2Id = element2Response.data.id;
+  });
+
+  test("Admin able to create map", async () => {
+    let createMapResponse;
+    try {
+      createMapResponse = await axios.post(
+        `${BACKEND_URL}/api/v1/admin/map`,
+        {
+          thumbnail: "https://thumbnail.com/a.png",
+          dimensions: "100x200",
+          name: "Test space",
+          defaultElements: [
+            {
+              elementId: element1Id,
+              x: 20,
+              y: 20,
+            },
+            {
+              elementId: element1Id,
+              x: 18,
+              y: 20,
+            },
+            {
+              elementId: element2Id,
+              x: 19,
+              y: 20,
+            },
+          ],
+        },
+        {
+          headers: {
+            authorization: `Bearer ${adminToken}`,
+          },
+        }
+      );
+    } catch (e) {
+      createMapResponse = e.response;
+    }
+    expect(createMapResponse.status).toBe(200);
+  });
+});
+
+describe("Space Information", () => {
+  let userToken;
+  let adminToken;
+  let avatarId;
+  let userId;
+  let adminId;
+  let element1Id;
+  let element2Id;
+  let mapId;
+
+  beforeAll(async () => {
+    let { userTokenfn, adminTokenfn, avatarIdfn, userIdfn, adminIdfn } =
+      await signupSigninAvatar();
+    userToken = userTokenfn;
+    adminToken = adminTokenfn;
+    avatarId = avatarIdfn;
+    userId = userIdfn;
+    adminId = adminIdfn;
+    let element1Response;
+    let element2Response;
+    try {
+      element1Response = await axios.post(
+        `${BACKEND_URL}/api/v1/admin/element`,
+        {
+          imageUrl:
+            "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcRCRca3wAR4zjPPTzeIY9rSwbbqB6bB2hVkoTXN4eerXOIkJTG1GpZ9ZqSGYafQPToWy_JTcmV5RHXsAsWQC3tKnMlH_CsibsSZ5oJtbakq&usqp=CAE",
+          width: 1,
+          height: 1,
+          static: true,
+        },
+        {
+          headers: {
+            authorization: `Bearer ${adminTokenfn}`,
+          },
+        }
+      );
+      element2Response = await axios.post(
+        `${BACKEND_URL}/api/v1/admin/element`,
+        {
+          imageUrl:
+            "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcRCRca3wAR4zjPPTzeIY9rSwbbqB6bB2hVkoTXN4eerXOIkJTG1GpZ9ZqSGYafQPToWy_JTcmV5RHXsAsWQC3tKnMlH_CsibsSZ5oJtbakq&usqp=CAE",
+          width: 1,
+          height: 1,
+          static: true,
+        },
+        {
+          headers: {
+            authorization: `Bearer ${adminTokenfn}`,
+          },
+        }
+      );
+    } catch (e) {
+      element1Response = e.response;
+      element2Response = e.response;
+    }
+    element1Id = element1Response.data.id;
+    element2Id = element2Response.data.id;
+    let createMapResponse;
+    try {
+      createMapResponse = await axios.post(
+        `${BACKEND_URL}/api/v1/admin/map`,
+        {
+          thumbnail: "https://thumbnail.com/a.png",
+          dimensions: "100x200",
+          name: "Test space",
+          defaultElements: [
+            {
+              elementId: element1Id,
+              x: 20,
+              y: 20,
+            },
+            {
+              elementId: element1Id,
+              x: 18,
+              y: 20,
+            },
+            {
+              elementId: element2Id,
+              x: 19,
+              y: 20,
+            },
+          ],
+        },
+        {
+          headers: {
+            authorization: `Bearer ${adminToken}`,
+          },
+        }
+      );
+    } catch (e) {
+      createMapResponse = e.response;
+    }
+    mapId = createMapResponse.data.id;
+  });
+
+  test("User is able to create a space", async () => {
+    let createSpaceResponse;
+    try {
+      createSpaceResponse = await axios.post(
+        `${BACKEND_URL}/api/v1/space`,
+        {
+          name: "Test",
+          dimensions: "100x200",
+          mapId: mapId,
+        },
+        {
+          headers: {
+            authorization: `Bearer ${userToken}`,
+          },
+        }
+      );
+    } catch (e) {
+      createSpaceResponse = e.response;
+    }
+
+    expect(createSpaceResponse.status).toBe(200);
+    expect(createSpaceResponse.data.spaceId).toBeDefined();
+  });
+
+  test("User is able to create a space without mapId (empty space)", async () => {
+    let createSpaceResponse;
+    try {
+      createSpaceResponse = await axios.post(
+        `${BACKEND_URL}/api/v1/space`,
+        {
+          name: "Test",
+          dimensions: "100x200",
+        },
+        {
+          headers: {
+            authorization: `Bearer ${userToken}`,
+          },
+        }
+      );
+    } catch (e) {
+      createSpaceResponse = e.response;
+    }
+
+    expect(createSpaceResponse.status).toBe(200);
+    expect(createSpaceResponse.data.spaceId).toBeDefined();
+  });
+
+  test("User is not able to create a space without mapId and dimensions", async () => {
+    let createSpaceResponse;
+    try {
+      createSpaceResponse = await axios.post(
+        `${BACKEND_URL}/api/v1/space`,
+        {
+          name: "Test",
+        },
+        {
+          headers: {
+            authorization: `Bearer ${userToken}`,
+          },
+        }
+      );
+    } catch (e) {
+      createSpaceResponse = e.response;
+    }
+    expect(createSpaceResponse.status).toBe(400);
+  });
+
+  test("User is not able to delete a space that doesnt exist", async () => {
+    let deleteSpaceResponse;
+    try {
+      deleteSpaceResponse = await axios.delete(
+        `${BACKEND_URL}/api/v1/space/randomSpaceId`,
+        {
+          headers: {
+            authorization: `Bearer ${userToken}`,
+          },
+        }
+      );
+    } catch (e) {
+      deleteSpaceResponse = e.response;
+    }
+
+    expect(deleteSpaceResponse.status).toBe(400);
+  });
+
+  test("User is able to delete a space that does exist", async () => {
+    let createSpaceResponse;
+    let deleteSpaceResponse;
+    try {
+      createSpaceResponse = await axios.post(
+        `${BACKEND_URL}/api/v1/space`,
+        {
+          name: "Test",
+          dimensions: "100x200",
+        },
+        {
+          headers: {
+            authorization: `Bearer ${userToken}`,
+          },
+        }
+      );
+
+      deleteSpaceResponse = await axios.delete(
+        `${BACKEND_URL}/api/v1/space/${createSpaceResponse.data.spaceId}`,
+        {
+          headers: {
+            authorization: `Bearer ${userToken}`,
+          },
+        }
+      );
+    } catch (e) {
+      createSpaceResponse = e.response;
+      deleteSpaceResponse = e.response;
+    }
+
+    expect(deleteSpaceResponse.status).toBe(200);
+  });
+
+  test("User should not be able to delete a space created by another user", async () => {
+    let createSpaceResponse;
+    let deleteSpaceResponse;
+    try {
+      createSpaceResponse = await axios.post(
+        `${BACKEND_URL}/api/v1/space`,
+        {
+          name: "Test",
+          dimensions: "100x200",
+        },
+        {
+          headers: {
+            authorization: `Bearer ${userToken}`,
+          },
+        }
+      );
+
+      deleteSpaceResponse = await axios.delete(
+        `${BACKEND_URL}/api/v1/space/${createSpaceResponse.data.spaceId}`,
+        {
+          headers: {
+            authorization: `Bearer ${adminToken}`,
+          },
+        }
+      );
+    } catch (e) {
+      createSpaceResponse = e.response;
+      deleteSpaceResponse = e.response;
+    }
+
+    expect(deleteReponse.status).toBe(403);
+  });
+
+  test("Admin has no spaces initially", async () => {
+    let numberOfSpacesResponse;
+    try {
+      numberOfSpacesResponse = await axios.get(
+        `${BACKEND_URL}/api/v1/space/all`,
+        {
+          headers: {
+            authorization: `Bearer ${adminToken}`,
+          },
+        }
+      );
+    } catch (e) {
+      numberOfSpacesResponse = e.response;
+    }
+
+    expect(numberOfSpacesResponse.data.spaces.length).toBe(0);
+  });
+
+  test("Admin has gets once space after", async () => {
+    let createSpaceResponse;
+    let numberOfSpacesResponse;
+    try {
+      createSpaceResponse = await axios.post(
+        `${BACKEND_URL}/api/v1/space`,
+        {
+          name: "Test",
+          dimensions: "100x200",
+        },
+        {
+          headers: {
+            authorization: `Bearer ${adminToken}`,
+          },
+        }
+      );
+      numberOfSpacesResponse = await axios.get(
+        `${BACKEND_URL}/api/v1/space/all`,
+        {
+          headers: {
+            authorization: `Bearer ${adminToken}`,
+          },
+        }
+      );
+    } catch (e) {
+      numberOfSpacesResponse = e.response;
+      createSpaceResponse = e.response;
+    }
+
+    const filteredSpace = numberOfSpacesResponse.data.spaces.find(
+      (x) => x.id == createSpaceResponse.data.spaceId
+    );
+    expect(filteredSpace.length).toBe(1);
+    expect(filteredSpace).toBeDefined();
+  });
+});
+
+describe("Arena Endpoints", () => {
+  let userToken;
+  let adminToken;
+  let avatarId;
+  let userId;
+  let adminId;
+  let element1Id;
+  let element2Id;
+  let mapId;
+  let spaceId;
+
+  beforeAll(async () => {
+    let { userTokenfn, adminTokenfn, avatarIdfn, userIdfn, adminIdfn } =
+      await signupSigninAvatar();
+    userToken = userTokenfn;
+    adminToken = adminTokenfn;
+    avatarId = avatarIdfn;
+    userId = userIdfn;
+    adminId = adminIdfn;
+    let element1Response;
+    let element2Response;
+    try {
+      element1Response = await axios.post(
+        `${BACKEND_URL}/api/v1/admin/element`,
+        {
+          imageUrl:
+            "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcRCRca3wAR4zjPPTzeIY9rSwbbqB6bB2hVkoTXN4eerXOIkJTG1GpZ9ZqSGYafQPToWy_JTcmV5RHXsAsWQC3tKnMlH_CsibsSZ5oJtbakq&usqp=CAE",
+          width: 1,
+          height: 1,
+          static: true,
+        },
+        {
+          headers: {
+            authorization: `Bearer ${adminTokenfn}`,
+          },
+        }
+      );
+      element2Response = await axios.post(
+        `${BACKEND_URL}/api/v1/admin/element`,
+        {
+          imageUrl:
+            "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcRCRca3wAR4zjPPTzeIY9rSwbbqB6bB2hVkoTXN4eerXOIkJTG1GpZ9ZqSGYafQPToWy_JTcmV5RHXsAsWQC3tKnMlH_CsibsSZ5oJtbakq&usqp=CAE",
+          width: 1,
+          height: 1,
+          static: true,
+        },
+        {
+          headers: {
+            authorization: `Bearer ${adminTokenfn}`,
+          },
+        }
+      );
+    } catch (e) {
+      element1Response = e.response;
+      element2Response = e.response;
+    }
+    element1Id = element1Response.data.id;
+    element2Id = element2Response.data.id;
+    let createMapResponse;
+    try {
+      createMapResponse = await axios.post(
+        `${BACKEND_URL}/api/v1/admin/map`,
+        {
+          thumbnail: "https://thumbnail.com/a.png",
+          dimensions: "100x200",
+          name: "Test space",
+          defaultElements: [
+            {
+              elementId: element1Id,
+              x: 20,
+              y: 20,
+            },
+            {
+              elementId: element1Id,
+              x: 18,
+              y: 20,
+            },
+            {
+              elementId: element2Id,
+              x: 19,
+              y: 20,
+            },
+          ],
+        },
+        {
+          headers: {
+            authorization: `Bearer ${adminToken}`,
+          },
+        }
+      );
+    } catch (e) {
+      createMapResponse = e.response;
+    }
+    mapId = createMapResponse.data.id;
+    let createSpaceResponse;
+    try {
+      createSpaceResponse = await axios.post(
+        `${BACKEND_URL}/api/v1/space`,
+        {
+          name: "Test",
+          dimensions: "100x200",
+          mapId: mapId,
+        },
+        {
+          headers: {
+            authorization: `Bearer ${userToken}`,
+          },
+        }
+      );
+    } catch (e) {
+      createSpaceResponse = e.response;
+    }
+    spaceId = createSpaceResponse.data.id;
+  });
+
+  test("Incorrect spaceId returns a 400", async () => {
+    let getSpaceResponse;
+    try {
+      getSpaceResponse = await axios.get(
+        `${BACKEND_URL}/api/v1/space/123kasdk01`,
+        {
+          headers: {
+            authorization: `Bearer ${userToken}`,
+          },
+        }
+      );
+    } catch (e) {
+      getSpaceResponse = e.response;
+    }
+
+    expect(getSpaceResponse.status).toBe(400);
+  });
+
+  test("Correct spaceId returns all the elements", async () => {
+    let getSpaceResponse;
+    try {
+      getSpaceResponse = await axios.get(
+        `${BACKEND_URL}/api/v1/space/${spaceId}`,
+        {
+          headers: {
+            authorization: `Bearer ${userToken}`,
+          },
+        }
+      );
+    } catch (e) {
+      getSpaceResponse = e.response;
+    }
+
+    expect(getSpaceResponse.data.dimensions).toBe("100x200");
+    expect(getSpaceResponse.data.elements.length).toBe(3);
+  });
+
+  test("Delete endpoint is able to delete an element", async () => {
+    let getSpaceResponse;
+    let deleteElementResponse;
+    let getSpaceAfterDeleteResponse;
+    try {
+      getSpaceResponse = await axios.get(
+        `${BACKEND_URL}/api/v1/space/${spaceId}`,
+        {
+          headers: {
+            authorization: `Bearer ${userToken}`,
+          },
+        }
+      );
+
+      deleteElementResponse = await axios.delete(
+        `${BACKEND_URL}/api/v1/space/element`,
+        {
+          data: { id: response.data.elements[0].id },
+          headers: {
+            authorization: `Bearer ${userToken}`,
+          },
+        }
+      );
+
+      getSpaceAfterDeleteResponse = await axios.get(
+        `${BACKEND_URL}/api/v1/space/${spaceId}`,
+        {
+          headers: {
+            authorization: `Bearer ${userToken}`,
+          },
+        }
+      );
+    } catch (e) {
+      getSpaceResponse = e.response;
+      deleteElementResponse = e.response;
+      getSpaceAfterDeleteResponse = e.response;
+    }
+
+    expect(getSpaceAfterDeleteResponse.data.elements.length).toBe(2);
+  });
+
+  test("Adding an element fails if the element lies outside the dimensions", async () => {
+    let addElementResponse;
+    try {
+      addElementResponse = await axios.post(
+        `${BACKEND_URL}/api/v1/space/element`,
+        {
+          elementId: element1Id,
+          spaceId: spaceId,
+          x: 10000,
+          y: 210000,
+        },
+        {
+          headers: {
+            authorization: `Bearer ${userToken}`,
+          },
+        }
+      );
+    } catch (e) {
+      addElementResponse = e.response;
+    }
+
+    expect(addElementResponse.status).toBe(400);
+  });
+
+  test("Adding an element works as expected", async () => {
+    let addElementResponse;
+    let getSpaceResponse;
+    try {
+      addElementResponse = await axios.post(
+        `${BACKEND_URL}/api/v1/space/element`,
+        {
+          elementId: element1Id,
+          spaceId: spaceId,
+          x: 50,
+          y: 20,
+        },
+        {
+          headers: {
+            authorization: `Bearer ${userToken}`,
+          },
+        }
+      );
+
+      getSpaceResponse = await axios.get(
+        `${BACKEND_URL}/api/v1/space/${spaceId}`,
+        {
+          headers: {
+            authorization: `Bearer ${userToken}`,
+          },
+        }
+      );
+    } catch (e) {
+      addElementResponse = e.response;
+      getSpaceResponse = e.response;
+    }
+
+    expect(getSpaceResponse.data.elements.length).toBe(3);
+  });
+});
+
+describe("User Restictions", () => {
+  let userToken;
+  let adminToken;
+  let avatarId;
+  let userId;
+  let adminId;
+
+  beforeAll(async () => {
+    let { userTokenfn, adminTokenfn, avatarIdfn, userIdfn, adminIdfn } =
+      await signupSigninAvatar();
+    userToken = userTokenfn;
+    adminToken = adminTokenfn;
+    avatarId = avatarIdfn;
+    userId = userIdfn;
+    adminId = adminIdfn;
+  });
+
+  test("User is not able to hit admin Endpoints", async () => {
+    let createElementResponse;
+    let createMapResponse;
+    let createAvatarResponse;
+    let updateElementResponse;
+    try {
+      createElementResponse = await axios.post(
+        `${BACKEND_URL}/api/v1/admin/element`,
+        {
+          imageUrl:
+            "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcRCRca3wAR4zjPPTzeIY9rSwbbqB6bB2hVkoTXN4eerXOIkJTG1GpZ9ZqSGYafQPToWy_JTcmV5RHXsAsWQC3tKnMlH_CsibsSZ5oJtbakq&usqp=CAE",
+          width: 1,
+          height: 1,
+          static: true,
+        },
+        {
+          headers: {
+            authorization: `Bearer ${userToken}`,
+          },
+        }
+      );
+
+      createMapResponse = await axios.post(
+        `${BACKEND_URL}/api/v1/admin/map`,
+        {
+          thumbnail: "https://thumbnail.com/a.png",
+          dimensions: "100x200",
+          name: "test space",
+          defaultElements: [],
+        },
+        {
+          headers: {
+            authorization: `Bearer ${userToken}`,
+          },
+        }
+      );
+
+      createAvatarResponse = await axios.post(
+        `${BACKEND_URL}/api/v1/admin/avatar`,
+        {
+          imageUrl:
+            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQm3RFDZM21teuCMFYx_AROjt-AzUwDBROFww&s",
+          name: "Timmy",
+        },
+        {
+          headers: {
+            authorization: `Bearer ${userToken}`,
+          },
+        }
+      );
+
+      updateElementResponse = await axios.put(
+        `${BACKEND_URL}/api/v1/admin/element/123`,
+        {
+          imageUrl:
+            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQm3RFDZM21teuCMFYx_AROjt-AzUwDBROFww&s",
+        },
+        {
+          headers: {
+            authorization: `Bearer ${userToken}`,
+          },
+        }
+      );
+    } catch (e) {
+      createElementResponse = e.response;
+      createMapResponse = e.response;
+      createMapResponse = e.response;
+      updateElementResponse = e.response;
+    }
+
+    expect(createElementResponse.status).toBe(403);
+    expect(createMapResponse.status).toBe(403);
+    expect(createMapResponse.status).toBe(403);
+    expect(updateElementResponse.status).toBe(403);
+  });
+
+  test("Admin is able to hit admin Endpoints", async () => {
+    let createElementResponse;
+    let createMapResponse;
+    let createAvatarResponse;
+    try {
+      createElementResponse = await axios.post(
+        `${BACKEND_URL}/api/v1/admin/element`,
+        {
+          imageUrl:
+            "https://encrypted-tbn0.gstatic.com/shopping?q=tbn:ANd9GcRCRca3wAR4zjPPTzeIY9rSwbbqB6bB2hVkoTXN4eerXOIkJTG1GpZ9ZqSGYafQPToWy_JTcmV5RHXsAsWQC3tKnMlH_CsibsSZ5oJtbakq&usqp=CAE",
+          width: 1,
+          height: 1,
+          static: true,
+        },
+        {
+          headers: {
+            authorization: `Bearer ${adminToken}`,
+          },
+        }
+      );
+
+      createMapResponse = await axios.post(
+        `${BACKEND_URL}/api/v1/admin/map`,
+        {
+          thumbnail: "https://thumbnail.com/a.png",
+          name: "Space",
+          dimensions: "100x200",
+          defaultElements: [],
+        },
+        {
+          headers: {
+            authorization: `Bearer ${adminToken}`,
+          },
+        }
+      );
+
+      createAvatarResponse = await axios.post(
+        `${BACKEND_URL}/api/v1/admin/avatar`,
+        {
+          imageUrl:
+            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQm3RFDZM21teuCMFYx_AROjt-AzUwDBROFww&s",
+          name: "Timmy",
+        },
+        {
+          headers: {
+            authorization: `Bearer ${adminToken}`,
+          },
+        }
+      );
+    } catch (e) {
+      createElementResponse = e.response;
+      createMapResponse = e.response;
+      createAvatarResponse = e.response;
+    }
+
+    expect(createElementResponse.status).toBe(200);
+    expect(createMapResponse.status).toBe(200);
+    expect(createAvatarResponse.status).toBe(200);
   });
 });
