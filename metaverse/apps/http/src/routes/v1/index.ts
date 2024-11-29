@@ -2,11 +2,9 @@ import { Router } from "express";
 import { userRouter } from "./user";
 import { adminRouter } from "./admin";
 import client from "@repo/db/client";
+import { spaceRouter } from "./space";
 
 export const rootRouter = Router();
-
-rootRouter.use("/user", userRouter);
-rootRouter.use("/admin", adminRouter);
 
 rootRouter.get("/avatars", async (req, res) => {
   try {
@@ -26,3 +24,20 @@ rootRouter.get("/avatars", async (req, res) => {
     });
   }
 });
+
+rootRouter.get("/elements", async (req, res) => {
+  try {
+    const elements = await client.element.findMany({});
+    res.status(200).json({
+      elements,
+    });
+  } catch (e) {
+    res.status(500).json({
+      message: "Internal Error",
+    });
+  }
+});
+
+rootRouter.use("/user", userRouter);
+rootRouter.use("/admin", adminRouter);
+rootRouter.use("/space", spaceRouter);
