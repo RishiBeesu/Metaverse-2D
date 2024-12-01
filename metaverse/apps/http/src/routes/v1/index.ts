@@ -29,7 +29,15 @@ rootRouter.get("/elements", async (req, res) => {
   try {
     const elements = await client.element.findMany({});
     res.status(200).json({
-      elements,
+      elements: elements.map((e) => {
+        return {
+          id: e.id,
+          height: e.height,
+          width: e.width,
+          imageUrl: e.imageUrl,
+          static: e.static,
+        };
+      }),
     });
   } catch (e) {
     res.status(500).json({

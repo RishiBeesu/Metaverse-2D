@@ -592,7 +592,7 @@ describe("Creating Elements", () => {
       );
 
       updateElementResponse = await axios.put(
-        `${BACKEND_URL}/api/v1/admin/element/${elementResponse.data.id}`,
+        `${BACKEND_URL}/api/v1/admin/element/${createElementResponse.data.id}`,
         {
           imageUrl:
             "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQm3RFDZM21teuCMFYx_AROjt-AzUwDBROFww&s",
@@ -607,7 +607,6 @@ describe("Creating Elements", () => {
       createElementResponse = e.response;
       updateElementResponse = e.response;
     }
-
     expect(updateElementResponse.status).toBe(200);
   });
 });
@@ -677,7 +676,8 @@ describe("Creating Map", () => {
         `${BACKEND_URL}/api/v1/admin/map`,
         {
           thumbnail: "https://thumbnail.com/a.png",
-          dimensions: "100x200",
+          width: 200,
+          height: 100,
           name: "Test space",
           defaultElements: [
             {
@@ -773,7 +773,8 @@ describe("Space Information", () => {
         `${BACKEND_URL}/api/v1/admin/map`,
         {
           thumbnail: "https://thumbnail.com/a.png",
-          dimensions: "100x200",
+          width: 200,
+          height: 100,
           name: "Test space",
           defaultElements: [
             {
@@ -812,7 +813,8 @@ describe("Space Information", () => {
         `${BACKEND_URL}/api/v1/space`,
         {
           name: "Test",
-          dimensions: "100x200",
+          width: 200,
+          height: 100,
           mapId: mapId,
         },
         {
@@ -836,7 +838,8 @@ describe("Space Information", () => {
         `${BACKEND_URL}/api/v1/space`,
         {
           name: "Test",
-          dimensions: "100x200",
+          width: 200,
+          height: 100,
         },
         {
           headers: {
@@ -898,7 +901,8 @@ describe("Space Information", () => {
         `${BACKEND_URL}/api/v1/space`,
         {
           name: "Test",
-          dimensions: "100x200",
+          width: 200,
+          height: 100,
         },
         {
           headers: {
@@ -931,7 +935,8 @@ describe("Space Information", () => {
         `${BACKEND_URL}/api/v1/space`,
         {
           name: "Test",
-          dimensions: "100x200",
+          width: 200,
+          height: 100,
         },
         {
           headers: {
@@ -953,7 +958,7 @@ describe("Space Information", () => {
       deleteSpaceResponse = e.response;
     }
 
-    expect(deleteReponse.status).toBe(403);
+    expect(deleteSpaceResponse.status).toBe(403);
   });
 
   test("Admin has no spaces initially", async () => {
@@ -974,7 +979,7 @@ describe("Space Information", () => {
     expect(numberOfSpacesResponse.data.spaces.length).toBe(0);
   });
 
-  test("Admin has gets once space after", async () => {
+  test("Admin gets once space after", async () => {
     let createSpaceResponse;
     let numberOfSpacesResponse;
     try {
@@ -982,7 +987,8 @@ describe("Space Information", () => {
         `${BACKEND_URL}/api/v1/space`,
         {
           name: "Test",
-          dimensions: "100x200",
+          width: 200,
+          height: 100,
         },
         {
           headers: {
@@ -1006,7 +1012,7 @@ describe("Space Information", () => {
     const filteredSpace = numberOfSpacesResponse.data.spaces.find(
       (x) => x.id == createSpaceResponse.data.spaceId
     );
-    expect(filteredSpace.length).toBe(1);
+    expect(numberOfSpacesResponse.data.spaces.length).toBe(1);
     expect(filteredSpace).toBeDefined();
   });
 });
@@ -1075,7 +1081,8 @@ describe("Arena Endpoints", () => {
         `${BACKEND_URL}/api/v1/admin/map`,
         {
           thumbnail: "https://thumbnail.com/a.png",
-          dimensions: "100x200",
+          width: 200,
+          height: 100,
           name: "Test space",
           defaultElements: [
             {
@@ -1111,7 +1118,8 @@ describe("Arena Endpoints", () => {
         `${BACKEND_URL}/api/v1/space`,
         {
           name: "Test",
-          dimensions: "100x200",
+          width: 200,
+          height: 100,
           mapId: mapId,
         },
         {
@@ -1123,7 +1131,7 @@ describe("Arena Endpoints", () => {
     } catch (e) {
       createSpaceResponse = e.response;
     }
-    spaceId = createSpaceResponse.data.id;
+    spaceId = createSpaceResponse.data.spaceId;
   });
 
   test("Incorrect spaceId returns a 400", async () => {
@@ -1158,8 +1166,8 @@ describe("Arena Endpoints", () => {
     } catch (e) {
       getSpaceResponse = e.response;
     }
-
-    expect(getSpaceResponse.data.dimensions).toBe("100x200");
+    expect(getSpaceResponse.data.width).toBe(200);
+    expect(getSpaceResponse.data.height).toBe(100);
     expect(getSpaceResponse.data.elements.length).toBe(3);
   });
 
@@ -1178,9 +1186,8 @@ describe("Arena Endpoints", () => {
       );
 
       deleteElementResponse = await axios.delete(
-        `${BACKEND_URL}/api/v1/space/element`,
+        `${BACKEND_URL}/api/v1/space/element/${getSpaceResponse.data.elements[0].id}`,
         {
-          data: { id: response.data.elements[0].id },
           headers: {
             authorization: `Bearer ${userToken}`,
           },
@@ -1229,9 +1236,19 @@ describe("Arena Endpoints", () => {
   });
 
   test("Adding an element works as expected", async () => {
+    let beforeAddSpace;
     let addElementResponse;
     let getSpaceResponse;
     try {
+      beforeAddSpace = await axios.get(
+        `${BACKEND_URL}/api/v1/space/${spaceId}`,
+        {
+          headers: {
+            authorization: `Bearer ${userToken}`,
+          },
+        }
+      );
+
       addElementResponse = await axios.post(
         `${BACKEND_URL}/api/v1/space/element`,
         {
@@ -1259,7 +1276,6 @@ describe("Arena Endpoints", () => {
       addElementResponse = e.response;
       getSpaceResponse = e.response;
     }
-
     expect(getSpaceResponse.data.elements.length).toBe(3);
   });
 });
@@ -1383,7 +1399,8 @@ describe("User Restictions", () => {
         {
           thumbnail: "https://thumbnail.com/a.png",
           name: "Space",
-          dimensions: "100x200",
+          width: 200,
+          height: 100,
           defaultElements: [],
         },
         {
@@ -1398,7 +1415,7 @@ describe("User Restictions", () => {
         {
           imageUrl:
             "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQm3RFDZM21teuCMFYx_AROjt-AzUwDBROFww&s",
-          name: "Timmy",
+          name: `Timmy-${Math.random()}`,
         },
         {
           headers: {
@@ -1407,9 +1424,9 @@ describe("User Restictions", () => {
         }
       );
     } catch (e) {
-      createElementResponse = e.response;
-      createMapResponse = e.response;
-      createAvatarResponse = e.response;
+      // createElementResponse = e.response;
+      // createMapResponse = e.response;
+      // createAvatarResponse = e.response;
     }
 
     expect(createElementResponse.status).toBe(200);
