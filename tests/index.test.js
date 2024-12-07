@@ -1,4 +1,5 @@
 const { default: axios, all } = require("axios");
+const WebSocket = require("ws");
 
 const BACKEND_URL = "http://localhost:3000";
 const WS_URL = "http://localhost:3001";
@@ -1436,7 +1437,7 @@ describe("User Restictions", () => {
   });
 });
 
-describe.skip("websocket tests", () => {
+describe("websocket tests", () => {
   let userToken;
   let adminToken;
   let avatarId;
@@ -1661,7 +1662,7 @@ describe.skip("websocket tests", () => {
       })
     );
 
-    const message = await waitForAndPopLatestMessage(ws1Messages);
+    const message = await waitForLatestMessage(ws1Messages);
 
     expect(message.type).toBe("movement-rejected");
     expect(message.payload.x).toBe(adminX);
@@ -1693,6 +1694,6 @@ describe.skip("websocket tests", () => {
     const message = await waitForLatestMessage(ws2Messages);
 
     expect(message.type).toBe("user-left");
-    expect(message.payload.userId).toBe(adminUserId);
+    expect(message.payload.userId).toBe(adminId);
   });
 });
