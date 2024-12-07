@@ -75,3 +75,4 @@ export type AddElementToSpaceSchema = zod.infer<typeof addElementToSpaceSchema>;
 export type DeleteElementOfSpaceSchema = zod.infer<
   typeof deleteElementOfSpaceSchema
 >;
+export type OutGoingMessage = any;

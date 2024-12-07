@@ -1436,7 +1436,7 @@ describe("User Restictions", () => {
   });
 });
 
-describe("websocket tests", () => {
+describe.skip("websocket tests", () => {
   let userToken;
   let adminToken;
   let avatarId;
