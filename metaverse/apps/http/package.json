@@ -12,6 +12,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@repo/typescript-config": "*",
     "@repo/db": "*",
     "@repo/zod": "*",
     "@types/dotenv": "^6.1.1",
